@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <!-- External CSS link -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>Student Management System</h2>
+        <button class="theme-btn" id="themeToggle">Toggle Theme</button>
+    </header>
+
+    <!-- CRUD Form -->
+    <div class="form-container">
+        <h3 id="formTitle">Add New Student</h3>
+        <form id="studentForm">
+            <!-- Hidden input to track index during update -->
+            <input type="hidden" id="studentIndex">
+            
+            <div class="form-group">
+                <input type="text" id="studentName" class="input-field" placeholder="Full Name" required>
+                <input type="text" id="studentID" class="input-field" placeholder="Student ID/Roll No" required>
+                <input type="email" id="studentEmail" class="input-field" placeholder="Email Address" required>
+                
+                <button type="submit" id="submitBtn" class="btn btn-submit">Add Student</button>
+                <button type="button" id="cancelBtn" class="btn btn-cancel" onclick="resetForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID / Roll No</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody">
+                <!-- Dynamic rows go here -->
+            </tbody>
+        </table>
+        <div id="noDataMessage" class="no-data">No student records found.</div>
+    </div>
+</div>
+
+<!-- External JavaScript link -->
+<script src="script.js"></script>
+</body>
+</html>
