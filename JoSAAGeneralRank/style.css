@@ -1,0 +1,79 @@
+/* Premium UI Stylesheet Custom Enhancements for Cutoff Explorer Dashboard */
+
+/* Set global theme font structures */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Glassmorphism Panel Cards Styles */
+.card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Specialized Custom Dropdown and Input Theme Form Styling */
+.custom-input, .custom-select {
+    background-color: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(51, 65, 85, 0.8);
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-input:focus, .custom-select:focus {
+    border-color: rgba(99, 102, 241, 0.8);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    background-color: rgba(15, 23, 42, 0.9);
+}
+
+/* Styled HTML Option items for matching Dark Mode */
+.custom-select option {
+    background-color: #0f172a;
+    color: #cbd5e1;
+}
+
+/* Eligible Allocation Rows Custom Highlight Effect */
+.eligible-row {
+    background-gradient: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+    background-color: rgba(16, 185, 129, 0.06) !important;
+}
+
+.eligible-row:hover {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.eligible-row td:last-child {
+    color: #34d399;
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+}
+
+/* Custom Styled Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
