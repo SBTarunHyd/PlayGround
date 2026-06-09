@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JoSAA Cutoff Analytics Dashboard</title>
+    <title>JoSAA Cutoff Analytics Dashboard by *Tarun*</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for premium typography -->
@@ -15,6 +16,7 @@
     <!-- Link to the external premium stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg-slate-900 text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
     <!-- Decorative Premium Background Elements -->
@@ -24,7 +26,7 @@
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        
+
         <!-- Premium Header Area -->
         <header class="flex flex-col md:flex-row md:items-center md:justify-between pb-8 mb-10 border-b border-slate-800 gap-4">
             <div>
@@ -41,7 +43,7 @@
                     An advanced, completely offline analytics system. Drop your official JoSAA Seat Allocation Excel matrix below to immediately map target cutoffs against your performance score.
                 </p>
             </div>
-            
+
             <!-- Live Status Node Counter -->
             <div id="quickStats" class="flex items-center gap-4 bg-slate-800/40 border border-slate-800 rounded-xl p-4 self-start md:self-auto backdrop-blur-md">
                 <div class="text-left">
@@ -55,22 +57,21 @@
 
         <!-- Interactive Control Configuration Grid -->
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            
+
             <!-- Panel 1: Data Acquisition -->
             <div class="card p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-md font-bold text-slate-200 flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">01</span>
-                            Data Ingestion
+                            <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">01</span> Data Ingestion
                         </h3>
                     </div>
                     <p class="text-xs text-slate-400 mb-4 leading-relaxed">
                         Drag or browse any raw historical JoSAA opening-closing rank Excel workbook (`.xlsx`, `.xls`). Processing occurs securely inside your browser canvas.
                     </p>
-                    
+
                     <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500/50 bg-slate-900/50 hover:bg-indigo-950/10 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 relative group">
-                        <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-20"/>
+                        <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-20" />
                         <svg class="w-8 h-8 text-slate-500 group-hover:text-indigo-400 mx-auto mb-2 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         <span class="block text-sm font-medium text-slate-300 group-hover:text-white transition-colors duration-300">Choose file or drop here</span>
                         <span class="block text-xs text-slate-500 mt-1">Excel formats only</span>
@@ -85,8 +86,7 @@
             <div class="card p-6 flex flex-col justify-between">
                 <div>
                     <h3 class="text-md font-bold text-slate-200 mb-4 flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">02</span>
-                        Student Demographics
+                        <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">02</span> Student Demographics
                     </h3>
                     <p class="text-xs text-slate-400 mb-4 leading-relaxed">
                         Provide metrics to evaluate dynamic compatibility profiles. Qualified rows automatically calculate admission opportunities.
@@ -95,13 +95,11 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">JEE Advanced Rank</label>
-                            <input type="number" id="userRank" placeholder="e.g., 2500" disabled
-                                   class="custom-input w-full px-3.5 py-2 text-sm text-white rounded-lg focus:outline-none placeholder-slate-600 disabled:opacity-40 disabled:cursor-not-allowed font-mono"/>
+                            <input type="number" id="userRank" placeholder="e.g., 2500" disabled class="custom-input w-full px-3.5 py-2 text-sm text-white rounded-lg focus:outline-none placeholder-slate-600 disabled:opacity-40 disabled:cursor-not-allowed font-mono" />
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Reservation Category / Seat Type</label>
-                            <select id="seatTypeSelect" disabled
-                                    class="custom-select w-full px-3.5 py-2 text-sm text-slate-300 rounded-lg focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed">
+                            <select id="seatTypeSelect" disabled class="custom-select w-full px-3.5 py-2 text-sm text-slate-300 rounded-lg focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed">
                                 <option value="ALL">All Categories (No Filter)</option>
                             </select>
                         </div>
@@ -116,8 +114,7 @@
             <div class="card p-6 flex flex-col justify-between">
                 <div>
                     <h3 class="text-md font-bold text-slate-200 mb-4 flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">03</span>
-                        Target Matrix Select
+                        <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">03</span> Target Matrix Select
                     </h3>
                     <p class="text-xs text-slate-400 mb-4 leading-relaxed">
                         Isolate institutional options. Submitting matches instant multi-threaded branch parameters against targeted choices.
@@ -125,16 +122,14 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Select Institute Structure</label>
-                        <select id="instituteSelect" disabled
-                                class="custom-select w-full px-3.5 py-2 text-sm text-slate-300 rounded-lg focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed">
+                        <select id="instituteSelect" disabled class="custom-select w-full px-3.5 py-2 text-sm text-slate-300 rounded-lg focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed">
                             <option value="">-- Ingest dataset first --</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="pt-4 border-t border-slate-800/60 mt-4">
-                    <button id="submitBtn" disabled
-                            class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-950/50 transition-all duration-300 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 text-sm tracking-wide">
+                    <button id="submitBtn" disabled class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-950/50 transition-all duration-300 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 text-sm tracking-wide">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         Compute Target Cutoffs
                     </button>
@@ -144,7 +139,7 @@
 
         <!-- Dynamic Output Matrix Content Grid Block -->
         <section class="bg-slate-800/20 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden hidden backdrop-blur-xl transition-all duration-500 transform scale-98" id="resultsCard">
-            
+
             <!-- Table Action Controller Bar Header -->
             <div class="px-6 py-5 bg-slate-800/40 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -179,7 +174,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Bottom Summary Footer Context -->
             <div class="px-6 py-4 bg-slate-900/30 text-xs text-slate-500 text-center border-t border-slate-800 font-mono">
                 End of computed metrics evaluation stream.
@@ -226,26 +221,28 @@
             reader.onload = (event) => {
                 try {
                     const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const workbook = XLSX.read(data, {
+                        type: 'array'
+                    });
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     const json = XLSX.utils.sheet_to_json(worksheet);
 
                     fullDataset = normalizeKeys(json);
-                    
-                    if(fullDataset.length === 0) {
+
+                    if (fullDataset.length === 0) {
                         throw new Error("No structured data vectors parsed from workbook.");
                     }
 
                     populateDropdowns(fullDataset);
-                    
+
                     // Activate controls smoothly
                     engineBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 mt-1";
                     engineBadge.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> Ready`;
-                    
+
                     uploadStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Loaded ${fullDataset.length} rows successfully.`;
                     uploadStatus.className = "text-xs font-semibold mt-4 text-emerald-400 border-t border-slate-800/60 pt-3 flex items-center gap-2";
-                    
+
                     instituteSelect.disabled = false;
                     seatTypeSelect.disabled = false;
                     userRankInput.disabled = false;
@@ -254,7 +251,7 @@
                 } catch (err) {
                     engineBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full border border-rose-500/20 mt-1";
                     engineBadge.innerHTML = `<span class="w-1.5 h-1.5 bg-rose-400 rounded-full"></span> Failure`;
-                    
+
                     uploadStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Error: Invalid schema structured spreadsheet file.`;
                     uploadStatus.className = "text-xs font-semibold mt-4 text-rose-400 border-t border-slate-800/60 pt-3 flex items-center gap-2";
                     console.error(err);
@@ -320,7 +317,7 @@
 
             resultsBody.innerHTML = "";
             resultsCard.classList.remove('hidden');
-            
+
             if (filteredRows.length === 0) {
                 resultsBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 font-mono">No metrics found mapping specified criteria filters.</td></tr>`;
             } else {
@@ -343,10 +340,14 @@
             }
 
             resultsTitle.textContent = targetInstitute;
-            
+
             // Animation slide trigger execution effect
-            resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            resultsCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         });
     </script>
 </body>
+
 </html>
