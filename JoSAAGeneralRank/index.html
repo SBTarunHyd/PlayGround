@@ -3,96 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JoSAA Lightweight Cutoff Analyzer</title>
-    <!-- Tailwind CSS for UI styling -->
+    <title>JoSAA Cutoff Analytics Dashboard</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS for processing Excel files entirely in the browser -->
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- SheetJS for client-side Excel processing -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Link to the external premium stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold text-blue-900 tracking-tight">JoSAA Cutoff Explorer</h1>
-            <p class="text-slate-500 mt-2">Upload your JoSAA data Excel file to instantly view opening and closing ranks.</p>
+    <!-- Decorative Premium Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 -left-40 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- Premium Header Area -->
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between pb-8 mb-10 border-b border-slate-800 gap-4">
+            <div>
+                <div class="flex items-center gap-2.5 mb-2">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-indigo-400 font-mono">Predictive Matrix Tool</span>
+                </div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+                    JoSAA <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Cutoff Explorer</span>
+                </h1>
+                <p class="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base">
+                    An advanced, completely offline analytics system. Drop your official JoSAA Seat Allocation Excel matrix below to immediately map target cutoffs against your performance score.
+                </p>
+            </div>
+            
+            <!-- Live Status Node Counter -->
+            <div id="quickStats" class="flex items-center gap-4 bg-slate-800/40 border border-slate-800 rounded-xl p-4 self-start md:self-auto backdrop-blur-md">
+                <div class="text-left">
+                    <span class="block text-xs font-medium text-slate-500 uppercase tracking-wider">Engine Status</span>
+                    <span id="engineBadge" class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20 mt-1">
+                        <span class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span> Idle (Awaiting Data)
+                    </span>
+                </div>
+            </div>
         </header>
 
-        <!-- Configuration Panel -->
-        <div class="bg-white rounded-xl shadow-md p-6 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Interactive Control Configuration Grid -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             
-            <!-- Step 1: Upload Excel -->
-            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-4 md:pb-0 md:pr-6">
-                <label class="block text-sm font-semibold text-slate-700 mb-2">1. Upload JoSAA Excel File</label>
-                <input type="file" id="excelFile" accept=".xlsx, .xls" 
-                       class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"/>
-                <div id="uploadStatus" class="text-xs mt-2 font-medium text-slate-400">No file loaded yet.</div>
-            </div>
-
-            <!-- Step 2: Student Preferences -->
-            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-4 md:pb-0 md:px-6">
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">2. Enter JEE Advanced Rank</label>
-                    <input type="number" id="userRank" placeholder="e.g., 2500" disabled
-                           class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"/>
-                </div>
+            <!-- Panel 1: Data Acquisition -->
+            <div class="card p-6 flex flex-col justify-between">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Select Category / Seat Type</label>
-                    <select id="seatTypeSelect" disabled
-                            class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
-                        <option value="ALL">All Categories</option>
-                    </select>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-bold text-slate-200 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">01</span>
+                            Data Ingestion
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Drag or browse any raw historical JoSAA opening-closing rank Excel workbook (`.xlsx`, `.xls`). Processing occurs securely inside your browser canvas.
+                    </p>
+                    
+                    <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500/50 bg-slate-900/50 hover:bg-indigo-950/10 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 relative group">
+                        <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-20"/>
+                        <svg class="w-8 h-8 text-slate-500 group-hover:text-indigo-400 mx-auto mb-2 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <span class="block text-sm font-medium text-slate-300 group-hover:text-white transition-colors duration-300">Choose file or drop here</span>
+                        <span class="block text-xs text-slate-500 mt-1">Excel formats only</span>
+                    </div>
+                </div>
+                <div id="uploadStatus" class="text-xs font-semibold mt-4 text-slate-500 border-t border-slate-800/60 pt-3 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-700"></span> System ready for deployment.
                 </div>
             </div>
 
-            <!-- Step 3: Selection & Submit -->
-            <div class="md:pl-6 flex flex-col justify-between">
+            <!-- Panel 2: Profile Metrics -->
+            <div class="card p-6 flex flex-col justify-between">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">3. Select Institute</label>
-                    <select id="instituteSelect" disabled
-                            class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
-                        <option value="">-- Upload Excel first --</option>
-                    </select>
-                </div>
-                <button id="submitBtn" disabled
-                        class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    View Cutoffs
-                </button>
-            </div>
-        </div>
+                    <h3 class="text-md font-bold text-slate-200 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">02</span>
+                        Student Demographics
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Provide metrics to evaluate dynamic compatibility profiles. Qualified rows automatically calculate admission opportunities.
+                    </p>
 
-        <!-- Results Section -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden hidden" id="resultsCard">
-            <div class="px-6 py-4 bg-slate-100 border-b border-slate-200 flex flex-wrap justify-between items-center gap-4">
-                <h2 class="text-lg font-bold text-slate-800" id="resultsTitle">Branches and Ranks</h2>
-                <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full">
-                    💡 Green rows indicate your rank is within previous cutoffs
-                </span>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">JEE Advanced Rank</label>
+                            <input type="number" id="userRank" placeholder="e.g., 2500" disabled
+                                   class="custom-input w-full px-3.5 py-2 text-sm text-white rounded-lg focus:outline-none placeholder-slate-600 disabled:opacity-40 disabled:cursor-not-allowed font-mono"/>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Reservation Category / Seat Type</label>
+                            <select id="seatTypeSelect" disabled
+                                    class="custom-select w-full px-3.5 py-2 text-sm text-slate-300 rounded-lg focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed">
+                                <option value="ALL">All Categories (No Filter)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 border-t border-slate-800/60 pt-3">
+                    Rank metrics match numeric boundaries securely.
+                </div>
             </div>
+
+            <!-- Panel 3: Focus Vector -->
+            <div class="card p-6 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-md font-bold text-slate-200 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-mono text-xs border border-indigo-500/20">03</span>
+                        Target Matrix Select
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Isolate institutional options. Submitting matches instant multi-threaded branch parameters against targeted choices.
+                    </p>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">Select Institute Structure</label>
+                        <select id="instituteSelect" disabled
+                                class="custom-select w-full px-3.5 py-2 text-sm text-slate-300 rounded-lg focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed">
+                            <option value="">-- Ingest dataset first --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800/60 mt-4">
+                    <button id="submitBtn" disabled
+                            class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-950/50 transition-all duration-300 disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 text-sm tracking-wide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        Compute Target Cutoffs
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Dynamic Output Matrix Content Grid Block -->
+        <section class="bg-slate-800/20 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden hidden backdrop-blur-xl transition-all duration-500 transform scale-98" id="resultsCard">
+            
+            <!-- Table Action Controller Bar Header -->
+            <div class="px-6 py-5 bg-slate-800/40 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white tracking-tight" id="resultsTitle">Evaluated Program Allocation</h2>
+                    <p class="text-xs text-slate-400 mt-1">Cross-referencing parameters with your specified performance metrics.</p>
+                </div>
+                <div class="flex flex-wrap gap-2.5">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 shadow-sm">
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> Highly Probable Options
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span class="w-1.5 h-1.5 bg-slate-500 rounded-full"></span> Beyond Range
+                    </span>
+                </div>
+            </div>
+
+            <!-- Responsive Dynamic Render Table Grid -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-600 uppercase text-xs font-semibold tracking-wider border-b border-slate-200">
-                            <th class="px-6 py-3">Academic Program / Branch</th>
-                            <th class="px-6 py-3">Quota</th>
-                            <th class="px-6 py-3">Category</th>
-                            <th class="px-6 py-3">Gender</th>
-                            <th class="px-6 py-3 text-center">Opening Rank</th>
-                            <th class="px-6 py-3 text-center">Closing Rank</th>
+                        <tr class="bg-slate-900/60 text-slate-400 uppercase text-xs font-bold tracking-wider font-mono border-b border-slate-800">
+                            <th class="px-6 py-4">Academic Program / Branch Architecture</th>
+                            <th class="px-6 py-4">Quota</th>
+                            <th class="px-6 py-4">Category</th>
+                            <th class="px-6 py-4">Gender Filter</th>
+                            <th class="px-6 py-4 text-center">Opening Rank</th>
+                            <th class="px-6 py-4 text-center">Closing Rank</th>
                         </tr>
                     </thead>
-                    <tbody id="resultsBody" class="divide-y divide-slate-100">
-                        <!-- Dynamic rows appear here -->
+                    <tbody id="resultsBody" class="divide-y divide-slate-800/60">
+                        <!-- Dynamic generated elements -->
                     </tbody>
                 </table>
             </div>
-        </div>
+            
+            <!-- Bottom Summary Footer Context -->
+            <div class="px-6 py-4 bg-slate-900/30 text-xs text-slate-500 text-center border-t border-slate-800 font-mono">
+                End of computed metrics evaluation stream.
+            </div>
+        </section>
     </div>
 
     <script>
         let fullDataset = [];
 
-        // Elements
+        // UI Element Selectors
         const excelInput = document.getElementById('excelFile');
         const uploadStatus = document.getElementById('uploadStatus');
         const instituteSelect = document.getElementById('instituteSelect');
@@ -102,15 +200,29 @@
         const resultsCard = document.getElementById('resultsCard');
         const resultsBody = document.getElementById('resultsBody');
         const resultsTitle = document.getElementById('resultsTitle');
+        const engineBadge = document.getElementById('engineBadge');
+        const dropZone = document.getElementById('dropZone');
+
+        // Drag and drop class styling extensions
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('border-indigo-500', 'bg-indigo-950/10'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('border-indigo-500', 'bg-indigo-950/10'), false);
+        });
 
         // Parse file uploaded by student
         excelInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            uploadStatus.textContent = "Processing Excel sheet...";
+            // Update loading flags
+            engineBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20 mt-1";
+            engineBadge.innerHTML = `<span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-spin"></span> Processing Stream...`;
+            uploadStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span> Parsing Excel file matrices...`;
+            uploadStatus.className = "text-xs font-semibold mt-4 text-indigo-400 border-t border-slate-800/60 pt-3 flex items-center gap-2";
+
             const reader = new FileReader();
-            
             reader.onload = (event) => {
                 try {
                     const data = new Uint8Array(event.target.result);
@@ -122,29 +234,36 @@
                     fullDataset = normalizeKeys(json);
                     
                     if(fullDataset.length === 0) {
-                        throw new Error("No readable rows found in the sheet.");
+                        throw new Error("No structured data vectors parsed from workbook.");
                     }
 
                     populateDropdowns(fullDataset);
                     
-                    // Unlock Form Fields
-                    uploadStatus.textContent = `Successfully loaded ${fullDataset.length} entries!`;
-                    uploadStatus.className = "text-xs mt-2 font-medium text-emerald-600";
+                    // Activate controls smoothly
+                    engineBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 mt-1";
+                    engineBadge.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> Ready`;
+                    
+                    uploadStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Loaded ${fullDataset.length} rows successfully.`;
+                    uploadStatus.className = "text-xs font-semibold mt-4 text-emerald-400 border-t border-slate-800/60 pt-3 flex items-center gap-2";
+                    
                     instituteSelect.disabled = false;
                     seatTypeSelect.disabled = false;
                     userRankInput.disabled = false;
                     submitBtn.disabled = false;
 
                 } catch (err) {
-                    uploadStatus.textContent = "Error reading sheet. Verify it matches standard JoSAA rows.";
-                    uploadStatus.className = "text-xs mt-2 font-medium text-red-600";
+                    engineBadge.className = "inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full border border-rose-500/20 mt-1";
+                    engineBadge.innerHTML = `<span class="w-1.5 h-1.5 bg-rose-400 rounded-full"></span> Failure`;
+                    
+                    uploadStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Error: Invalid schema structured spreadsheet file.`;
+                    uploadStatus.className = "text-xs font-semibold mt-4 text-rose-400 border-t border-slate-800/60 pt-3 flex items-center gap-2";
                     console.error(err);
                 }
             };
             reader.readAsArrayBuffer(file);
         });
 
-        // Safe column mapping to tolerate variation across dataset revisions
+        // Key Normalization for Cross-Compatibility
         function normalizeKeys(data) {
             return data.map(row => {
                 let norm = {};
@@ -166,7 +285,7 @@
             const institutes = [...new Set(data.map(item => item.institute).filter(Boolean))].sort();
             const seatTypes = [...new Set(data.map(item => item.seatType).filter(Boolean))].sort();
 
-            instituteSelect.innerHTML = '<option value="">-- Choose an Institute --</option>';
+            instituteSelect.innerHTML = '<option value="">-- Choose Target Institute Vector --</option>';
             institutes.forEach(inst => {
                 const opt = document.createElement('option');
                 opt.value = inst;
@@ -174,7 +293,7 @@
                 instituteSelect.appendChild(opt);
             });
 
-            seatTypeSelect.innerHTML = '<option value="ALL">All Categories</option>';
+            seatTypeSelect.innerHTML = '<option value="ALL">All Categories (No Filter)</option>';
             seatTypes.forEach(cat => {
                 const opt = document.createElement('option');
                 opt.value = cat;
@@ -183,49 +302,50 @@
             });
         }
 
-        // On Submit Action
+        // Processing Submit Engine
         submitBtn.addEventListener('click', () => {
             const targetInstitute = instituteSelect.value;
             const userRank = parseInt(userRankInput.value) || 0;
             const targetCategory = seatTypeSelect.value;
 
             if (!targetInstitute) {
-                alert("Please select an institute first!");
+                alert("Institutional selection empty. Specify target configuration profile.");
                 return;
             }
 
-            // Filtering routine
             let filteredRows = fullDataset.filter(item => item.institute === targetInstitute);
             if (targetCategory !== "ALL") {
                 filteredRows = filteredRows.filter(item => item.seatType === targetCategory);
             }
 
-            // Build rows HTML
             resultsBody.innerHTML = "";
+            resultsCard.classList.remove('hidden');
+            
             if (filteredRows.length === 0) {
-                resultsBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">No data records found matching standard criteria.</td></tr>`;
+                resultsBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 font-mono">No metrics found mapping specified criteria filters.</td></tr>`;
             } else {
                 filteredRows.forEach(row => {
-                    // Match condition logic: highlight if Student Rank <= Closing Rank
                     const isEligible = userRank > 0 && row.closing > 0 && userRank <= row.closing;
-                    const rowClass = isEligible ? "bg-emerald-50/70 text-emerald-900 hover:bg-emerald-100/60" : "hover:bg-slate-50";
+                    const rowClass = isEligible ? "eligible-row text-emerald-300" : "hover:bg-slate-800/30 text-slate-300";
 
                     const tr = document.createElement('tr');
-                    tr.className = `${rowClass} transition duration-150`;
+                    tr.className = `${rowClass} transition-colors duration-150`;
                     tr.innerHTML = `
-                        <td class="px-6 py-4 font-medium">${row.branch || 'N/A'}</td>
-                        <td class="px-6 py-4 text-slate-500">${row.quota || 'N/A'}</td>
-                        <td class="px-6 py-4 text-slate-500">${row.seatType || 'N/A'}</td>
-                        <td class="px-6 py-4 text-slate-500">${row.gender || 'N/A'}</td>
-                        <td class="px-6 py-4 text-center font-mono">${row.opening || '—'}</td>
-                        <td class="px-6 py-4 text-center font-mono font-semibold">${row.closing || '—'}</td>
+                        <td class="px-6 py-4.5 font-medium max-w-md">${row.branch || 'N/A'}</td>
+                        <td class="px-6 py-4.5 text-slate-400 font-mono text-xs">${row.quota || 'N/A'}</td>
+                        <td class="px-6 py-4.5 text-slate-400 text-xs">${row.seatType || 'N/A'}</td>
+                        <td class="px-6 py-4.5 text-slate-400 text-xs">${row.gender || 'N/A'}</td>
+                        <td class="px-6 py-4.5 text-center font-mono text-xs tracking-wider">${row.opening || '—'}</td>
+                        <td class="px-6 py-4.5 text-center font-mono font-bold text-xs tracking-wider">${row.closing || '—'}</td>
                     `;
                     resultsBody.appendChild(tr);
                 });
             }
 
-            resultsTitle.textContent = `Cutoff Data: ${targetInstitute}`;
-            resultsCard.classList.remove('hidden');
+            resultsTitle.textContent = targetInstitute;
+            
+            // Animation slide trigger execution effect
+            resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     </script>
 </body>
