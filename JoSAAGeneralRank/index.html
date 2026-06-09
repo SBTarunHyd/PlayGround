@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoSAA Lightweight Cutoff Analyzer</title>
+    <!-- Tailwind CSS for UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS for processing Excel files entirely in the browser -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-blue-900 tracking-tight">JoSAA Cutoff Explorer</h1>
+            <p class="text-slate-500 mt-2">Upload your JoSAA data Excel file to instantly view opening and closing ranks.</p>
+        </header>
+
+        <!-- Configuration Panel -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Step 1: Upload Excel -->
+            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-4 md:pb-0 md:pr-6">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">1. Upload JoSAA Excel File</label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls" 
+                       class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"/>
+                <div id="uploadStatus" class="text-xs mt-2 font-medium text-slate-400">No file loaded yet.</div>
+            </div>
+
+            <!-- Step 2: Student Preferences -->
+            <div class="border-b md:border-b-0 md:border-r border-slate-200 pb-4 md:pb-0 md:px-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">2. Enter JEE Advanced Rank</label>
+                    <input type="number" id="userRank" placeholder="e.g., 2500" disabled
+                           class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Select Category / Seat Type</label>
+                    <select id="seatTypeSelect" disabled
+                            class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
+                        <option value="ALL">All Categories</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 3: Selection & Submit -->
+            <div class="md:pl-6 flex flex-col justify-between">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">3. Select Institute</label>
+                    <select id="instituteSelect" disabled
+                            class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
+                        <option value="">-- Upload Excel first --</option>
+                    </select>
+                </div>
+                <button id="submitBtn" disabled
+                        class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    View Cutoffs
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hidden" id="resultsCard">
+            <div class="px-6 py-4 bg-slate-100 border-b border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="text-lg font-bold text-slate-800" id="resultsTitle">Branches and Ranks</h2>
+                <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full">
+                    💡 Green rows indicate your rank is within previous cutoffs
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 uppercase text-xs font-semibold tracking-wider border-b border-slate-200">
+                            <th class="px-6 py-3">Academic Program / Branch</th>
+                            <th class="px-6 py-3">Quota</th>
+                            <th class="px-6 py-3">Category</th>
+                            <th class="px-6 py-3">Gender</th>
+                            <th class="px-6 py-3 text-center">Opening Rank</th>
+                            <th class="px-6 py-3 text-center">Closing Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody" class="divide-y divide-slate-100">
+                        <!-- Dynamic rows appear here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fullDataset = [];
+
+        // Elements
+        const excelInput = document.getElementById('excelFile');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const instituteSelect = document.getElementById('instituteSelect');
+        const seatTypeSelect = document.getElementById('seatTypeSelect');
+        const userRankInput = document.getElementById('userRank');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsCard = document.getElementById('resultsCard');
+        const resultsBody = document.getElementById('resultsBody');
+        const resultsTitle = document.getElementById('resultsTitle');
+
+        // Parse file uploaded by student
+        excelInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadStatus.textContent = "Processing Excel sheet...";
+            const reader = new FileReader();
+            
+            reader.onload = (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet);
+
+                    fullDataset = normalizeKeys(json);
+                    
+                    if(fullDataset.length === 0) {
+                        throw new Error("No readable rows found in the sheet.");
+                    }
+
+                    populateDropdowns(fullDataset);
+                    
+                    // Unlock Form Fields
+                    uploadStatus.textContent = `Successfully loaded ${fullDataset.length} entries!`;
+                    uploadStatus.className = "text-xs mt-2 font-medium text-emerald-600";
+                    instituteSelect.disabled = false;
+                    seatTypeSelect.disabled = false;
+                    userRankInput.disabled = false;
+                    submitBtn.disabled = false;
+
+                } catch (err) {
+                    uploadStatus.textContent = "Error reading sheet. Verify it matches standard JoSAA rows.";
+                    uploadStatus.className = "text-xs mt-2 font-medium text-red-600";
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Safe column mapping to tolerate variation across dataset revisions
+        function normalizeKeys(data) {
+            return data.map(row => {
+                let norm = {};
+                for (let rawKey in row) {
+                    let cleanKey = rawKey.toLowerCase().replace(/[\s_\-]/g, '');
+                    if (cleanKey.includes('institute')) norm.institute = row[rawKey];
+                    else if (cleanKey.includes('program') || cleanKey.includes('branch')) norm.branch = row[rawKey];
+                    else if (cleanKey.includes('quota')) norm.quota = row[rawKey];
+                    else if (cleanKey.includes('seattype') || cleanKey.includes('category')) norm.seatType = row[rawKey];
+                    else if (cleanKey.includes('gender')) norm.gender = row[rawKey];
+                    else if (cleanKey.includes('opening')) norm.opening = parseInt(row[rawKey].toString().replace(/[^0-9]/g, '')) || 0;
+                    else if (cleanKey.includes('closing')) norm.closing = parseInt(row[rawKey].toString().replace(/[^0-9]/g, '')) || 0;
+                }
+                return norm;
+            });
+        }
+
+        function populateDropdowns(data) {
+            const institutes = [...new Set(data.map(item => item.institute).filter(Boolean))].sort();
+            const seatTypes = [...new Set(data.map(item => item.seatType).filter(Boolean))].sort();
+
+            instituteSelect.innerHTML = '<option value="">-- Choose an Institute --</option>';
+            institutes.forEach(inst => {
+                const opt = document.createElement('option');
+                opt.value = inst;
+                opt.textContent = inst;
+                instituteSelect.appendChild(opt);
+            });
+
+            seatTypeSelect.innerHTML = '<option value="ALL">All Categories</option>';
+            seatTypes.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                seatTypeSelect.appendChild(opt);
+            });
+        }
+
+        // On Submit Action
+        submitBtn.addEventListener('click', () => {
+            const targetInstitute = instituteSelect.value;
+            const userRank = parseInt(userRankInput.value) || 0;
+            const targetCategory = seatTypeSelect.value;
+
+            if (!targetInstitute) {
+                alert("Please select an institute first!");
+                return;
+            }
+
+            // Filtering routine
+            let filteredRows = fullDataset.filter(item => item.institute === targetInstitute);
+            if (targetCategory !== "ALL") {
+                filteredRows = filteredRows.filter(item => item.seatType === targetCategory);
+            }
+
+            // Build rows HTML
+            resultsBody.innerHTML = "";
+            if (filteredRows.length === 0) {
+                resultsBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">No data records found matching standard criteria.</td></tr>`;
+            } else {
+                filteredRows.forEach(row => {
+                    // Match condition logic: highlight if Student Rank <= Closing Rank
+                    const isEligible = userRank > 0 && row.closing > 0 && userRank <= row.closing;
+                    const rowClass = isEligible ? "bg-emerald-50/70 text-emerald-900 hover:bg-emerald-100/60" : "hover:bg-slate-50";
+
+                    const tr = document.createElement('tr');
+                    tr.className = `${rowClass} transition duration-150`;
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-medium">${row.branch || 'N/A'}</td>
+                        <td class="px-6 py-4 text-slate-500">${row.quota || 'N/A'}</td>
+                        <td class="px-6 py-4 text-slate-500">${row.seatType || 'N/A'}</td>
+                        <td class="px-6 py-4 text-slate-500">${row.gender || 'N/A'}</td>
+                        <td class="px-6 py-4 text-center font-mono">${row.opening || '—'}</td>
+                        <td class="px-6 py-4 text-center font-mono font-semibold">${row.closing || '—'}</td>
+                    `;
+                    resultsBody.appendChild(tr);
+                });
+            }
+
+            resultsTitle.textContent = `Cutoff Data: ${targetInstitute}`;
+            resultsCard.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
