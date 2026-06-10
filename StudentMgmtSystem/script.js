@@ -1,4 +1,3 @@
-
 // Load existing data from localStorage or default to empty array
 let students = JSON.parse(localStorage.getItem('students')) || [];
 let isEditing = false;
@@ -8,6 +7,10 @@ const studentForm = document.getElementById('studentForm');
 const studentName = document.getElementById('studentName');
 const studentID = document.getElementById('studentID');
 const studentEmail = document.getElementById('studentEmail');
+const studentDepartment = document.getElementById('studentDepartment');
+const studentCity = document.getElementById('studentCity');
+const studentPhone = document.getElementById('studentPhone');
+const studentDOB = document.getElementById('studentDOB');
 const studentIndex = document.getElementById('studentIndex');
 
 const formTitle = document.getElementById('formTitle');
@@ -16,8 +19,6 @@ const cancelBtn = document.getElementById('cancelBtn');
 const studentTableBody = document.getElementById('studentTableBody');
 const noDataMessage = document.getElementById('noDataMessage');
 const themeToggle = document.getElementById('themeToggle');
-
-
 
 
 function displayStudents() {
@@ -35,7 +36,11 @@ function displayStudents() {
         row.innerHTML = `
             <td>${student.id}</td>
             <td>${student.name}</td>
+            <td>${student.department || ''}</td>
+            <td>${student.city || ''}</td>
             <td>${student.email}</td>
+            <td>${student.phone || ''}</td>
+            <td>${student.dob || ''}</td>
             <td class="action-btns">
                 <button class="btn btn-edit" onclick="editStudent(${index})">Edit</button>
                 <button class="btn btn-delete" onclick="deleteStudent(${index})">Delete</button>
@@ -52,7 +57,11 @@ studentForm.addEventListener('submit', function(e) {
     const studentData = {
         name: studentName.value.trim(),
         id: studentID.value.trim(),
-        email: studentEmail.value.trim()
+        email: studentEmail.value.trim(),
+        department: studentDepartment.value.trim(),
+        city: studentCity.value.trim(),
+        phone: studentPhone.value.trim(),
+        dob: studentDOB.value.trim()
     };
 
     if (isEditing) {
@@ -86,6 +95,10 @@ function editStudent(index) {
     studentName.value = students[index].name;
     studentID.value = students[index].id;
     studentEmail.value = students[index].email;
+    studentDepartment.value = students[index].department || '';
+    studentCity.value = students[index].city || '';
+    studentPhone.value = students[index].phone || '';
+    studentDOB.value = students[index].dob || '';
     studentIndex.value = index;
 }
 

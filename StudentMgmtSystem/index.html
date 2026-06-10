@@ -25,7 +25,11 @@
             <div class="form-group">
                 <input type="text" id="studentName" class="input-field" placeholder="Full Name" required>
                 <input type="text" id="studentID" class="input-field" placeholder="Student ID/Roll No" required>
+                <input type="text" id="studentDepartment" class="input-field" placeholder="Department">
+                <input type="text" id="studentCity" class="input-field" placeholder="Native City">
                 <input type="email" id="studentEmail" class="input-field" placeholder="Email Address" required>
+                <input type="tel" id="studentPhone" class="input-field" placeholder="Phone Number">
+                <input type="date" id="studentDOB" class="input-field" placeholder="Date of Birth">
                 
                 <button type="submit" id="submitBtn" class="btn btn-submit">Add Student</button>
                 <button type="button" id="cancelBtn" class="btn btn-cancel" onclick="resetForm()">Cancel</button>
@@ -40,7 +44,11 @@
                 <tr>
                     <th>ID / Roll No</th>
                     <th>Name</th>
+                    <th>Department</th>
+                    <th>Native City</th>
                     <th>Email</th>
+                    <th>Phone</th>
+                    <th>DOB</th>
                     <th>Actions</th>
                 </tr>
             </thead>
